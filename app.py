@@ -118,15 +118,20 @@ class TestFbpWindow(QWidget):
     @pyqtSlot()
     def _connect_serial(self):
         try:
-            port = combo_com.currentText()
-            baud = '115200'
+            print('Entrou aqui')
+            #port = combo_com.currentText()
+            port = "/dev/virtualcom0"
+            baud = '6000000'
             con = self._drs.Connect(port, baud)
+            print(con)
             if con:
                 self.pb_connect.setEnabled(False)
                 self.pb_disconnect.setEnabled(True)
+                self.combo_com.setEnabled(False)
             else:
                 self.pb_disconnect.setEnabled(False)
                 self.pb_connect.setEnabled(True)
+                self.combo_com.setEnabled(True)
         except:
             pass
 
@@ -136,6 +141,7 @@ class TestFbpWindow(QWidget):
             self._drs.Disconnect()
             self.pb_disconnect.setEnabled(False)
             self.pb_connect.setEnabled(True)
+            self.combo_com.setEnabled(True)
         except:
             pass
 
@@ -322,9 +328,10 @@ class TestFbpWindow(QWidget):
         ps = self.combo_intlk_id.currentText()
         try:
             add = self._current_ps_id[ps]
-            self._drs.SetSlaveAdd(ps)
-            intlk = self._drs.Read_ps_HardInterlock()
-            self.le_intlk.setText(str(intlk))
+            self._drs.SetSlaveAdd(add)
+            i = self._drs.read_bsmp_variable(self._bsmp_var['hard_intlk'],
+                                                            'uint16_t')
+            self.le_iload_1.setText(str(i))
         except:
             pass
 
