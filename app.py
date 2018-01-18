@@ -30,10 +30,10 @@ class TestFbpWindow(QWidget):
         self.pb_off_2.setEnabled(False)
         self.pb_off_3.setEnabled(False)
         self.pb_off_4.setEnabled(False)
-        self.pb_close_loop_1.setEnabled(False)
-        self.pb_close_loop_2.setEnabled(False)
-        self.pb_close_loop_3.setEnabled(False)
-        self.pb_close_loop_4.setEnabled(False)
+        self.pb_open_loop_1.setEnabled(False)
+        self.pb_open_loop_2.setEnabled(False)
+        self.pb_open_loop_3.setEnabled(False)
+        self.pb_open_loop_4.setEnabled(False)
         self.le_iload_1.setReadOnly(True)
         self.le_iload_2.setReadOnly(True)
         self.le_iload_3.setReadOnly(True)
@@ -50,6 +50,7 @@ class TestFbpWindow(QWidget):
         self.le_temp_2.setReadOnly(True)
         self.le_temp_3.setReadOnly(True)
         self.le_temp_4.setReadOnly(True)
+        self.le_intlk.setReadOnly(True)
         self.combo_iref_id.addItems(['Fonte 1', 'Fonte 2', 'Fonte 3',
                                     'Fonte 4', 'Todas'])
         self.combo_intlk_id.addItems(['Fonte 1', 'Fonte 2', 'Fonte 3',
@@ -118,9 +119,7 @@ class TestFbpWindow(QWidget):
     @pyqtSlot()
     def _connect_serial(self):
         try:
-            print('Entrou aqui')
-            #port = combo_com.currentText()
-            port = "/dev/virtualcom0"
+            port = str(self.combo_com.currentText())
             baud = '6000000'
             con = self._drs.Connect(port, baud)
             print(con)
@@ -191,7 +190,7 @@ class TestFbpWindow(QWidget):
         try:
             self._drs.turn_off()
             self.pb_on_1.setEnabled(True)
-            self.pb_off_2.setEnabled(False)
+            self.pb_off_1.setEnabled(False)
         except:
             pass
 
@@ -269,7 +268,7 @@ class TestFbpWindow(QWidget):
     def _close_loop_1(self):
         self._drs.SetSlaveAdd(1)
         try:
-            self._drs.close_loop()
+            self._drs.closed_loop()
             self.pb_open_loop_1.setEnabled(True)
             self.pb_close_loop_1.setEnabled(False)
         except:
@@ -279,7 +278,7 @@ class TestFbpWindow(QWidget):
     def _close_loop_2(self):
         self._drs.SetSlaveAdd(2)
         try:
-            self._drs.close_loop()
+            self._drs.closed_loop()
             self.pb_open_loop_2.setEnabled(True)
             self.pb_close_loop_2.setEnabled(False)
         except:
@@ -289,7 +288,7 @@ class TestFbpWindow(QWidget):
     def _close_loop_3(self):
         self._drs.SetSlaveAdd(3)
         try:
-            self._drs.close_loop()
+            self._drs.closed_loop()
             self.pb_open_loop_3.setEnabled(True)
             self.pb_close_loop_3.setEnabled(False)
         except:
@@ -299,7 +298,7 @@ class TestFbpWindow(QWidget):
     def _close_loop_4(self):
         self._drs.SetSlaveAdd(4)
         try:
-            self._drs.close_loop()
+            self._drs.closed_loop()
             self.pb_open_loop_4.setEnabled(True)
             self.pb_close_loop_4.setEnabled(False)
         except:
@@ -307,7 +306,7 @@ class TestFbpWindow(QWidget):
 
     @pyqtSlot()
     def _send_iref(self):
-        ps = self.combo_iref_id.currentText()
+        ps = str(self.combo_iref_id.currentText())
         if ps == 'Todas':
             try:
                 ref = float(self.le_iref.text())
@@ -329,9 +328,11 @@ class TestFbpWindow(QWidget):
         try:
             add = self._current_ps_id[ps]
             self._drs.SetSlaveAdd(add)
+            print(add)
             i = self._drs.read_bsmp_variable(self._bsmp_var['hard_intlk'],
-                                                            'uint16_t')
-            self.le_iload_1.setText(str(i))
+                                                            'uint16_t', 0)
+            print(1)
+            self.le_intlk.setText(str(i))
         except:
             pass
 
@@ -350,8 +351,8 @@ class TestFbpWindow(QWidget):
     def _read_iload_1(self):
         try:
             self._drs.SetSlaveAdd(1)
-            i = self._drs.read_bsmp_variable(self._bsmp_var['iload'], 'float')
-            self.le_iload_1.setText(str(i))
+            i = self._drs.read_bsmp_variable(self._bsmp_var['iload'], 'float', 0)
+            self.le_iload_1.setText(str(round(i, 4)))
         except:
             pass
 
@@ -359,8 +360,8 @@ class TestFbpWindow(QWidget):
     def _read_iload_2(self):
         try:
             self._drs.SetSlaveAdd(2)
-            i = self._drs.read_bsmp_variable(self._bsmp_var['iload'], 'float')
-            self.le_iload_2.setText(str(i))
+            i = self._drs.read_bsmp_variable(self._bsmp_var['iload'], 'float', 0)
+            self.le_iload_2.setText(str(round(i, 4)))
         except:
             pass
 
@@ -368,8 +369,8 @@ class TestFbpWindow(QWidget):
     def _read_iload_3(self):
         try:
             self._drs.SetSlaveAdd(3)
-            i = self._drs.read_bsmp_variable(self._bsmp_var['iload'], 'float')
-            self.le_iload_3.setText(str(i))
+            i = self._drs.read_bsmp_variable(self._bsmp_var['iload'], 'float', 0)
+            self.le_iload_3.setText(str(round(i, 4)))
         except:
             pass
 
@@ -377,8 +378,8 @@ class TestFbpWindow(QWidget):
     def _read_iload_4(self):
         try:
             self._drs.SetSlaveAdd(4)
-            i = self._drs.read_bsmp_variable(self._bsmp_var['iload'], 'float')
-            self.le_iload_4.setText(str(i))
+            i = self._drs.read_bsmp_variable(self._bsmp_var['iload'], 'float', 0)
+            self.le_iload_4.setText(str(round(i, 4)))
         except:
             pass
 
@@ -386,8 +387,8 @@ class TestFbpWindow(QWidget):
     def _read_vload_1(self):
         try:
             self._drs.SetSlaveAdd(1)
-            v = self._drs.read_bsmp_variable(self._bsmp_var['vload'], 'float')
-            self.le_vload_1.setText(str(v))
+            v = self._drs.read_bsmp_variable(self._bsmp_var['vload'], 'float', 0)
+            self.le_vload_1.setText(str(round(v, 4)))
         except:
             pass
 
@@ -395,8 +396,8 @@ class TestFbpWindow(QWidget):
     def _read_vload_2(self):
         try:
             self._drs.SetSlaveAdd(2)
-            v = self._drs.read_bsmp_variable(self._bsmp_var['vload'], 'float')
-            self.le_vload_2.setText(str(v))
+            v = self._drs.read_bsmp_variable(self._bsmp_var['vload'], 'float', 0)
+            self.le_vload_2.setText(str(round(v, 4)))
         except:
             pass
 
@@ -404,8 +405,8 @@ class TestFbpWindow(QWidget):
     def _read_vload_3(self):
         try:
             self._drs.SetSlaveAdd(3)
-            v = self._drs.read_bsmp_variable(self._bsmp_var['vload'], 'float')
-            self.le_vload_3.setText(str(v))
+            v = self._drs.read_bsmp_variable(self._bsmp_var['vload'], 'float', 0)
+            self.le_vload_3.setText(str(round(v, 4)))
         except:
             pass
 
@@ -413,8 +414,8 @@ class TestFbpWindow(QWidget):
     def _read_vload_4(self):
         try:
             self._drs.SetSlaveAdd(4)
-            v = self._drs.read_bsmp_variable(self._bsmp_var['vload'], 'float')
-            self.le_vload_4.setText(str(v))
+            v = self._drs.read_bsmp_variable(self._bsmp_var['vload'], 'float', 0)
+            self.le_vload_4.setText(str(round(v, 4)))
         except:
             pass
 
@@ -422,8 +423,8 @@ class TestFbpWindow(QWidget):
     def _read_vdclink_1(self):
         try:
             self._drs.SetSlaveAdd(1)
-            v = self._drs.read_bsmp_variable(self._bsmp_var['vdclink'], 'float')
-            self.le_vdclink_1.setText(str(v))
+            v = self._drs.read_bsmp_variable(self._bsmp_var['vdclink'], 'float', 0)
+            self.le_vdclink_1.setText(str(round(v, 4)))
         except:
             pass
 
@@ -431,8 +432,8 @@ class TestFbpWindow(QWidget):
     def _read_vdclink_2(self):
         try:
             self._drs.SetSlaveAdd(2)
-            v = self._drs.read_bsmp_variable(self._bsmp_var['vdclink'], 'float')
-            self.le_vdclink_2.setText(str(v))
+            v = self._drs.read_bsmp_variable(self._bsmp_var['vdclink'], 'float', 0)
+            self.le_vdclink_2.setText(str(round(v, 4)))
         except:
             pass
 
@@ -440,8 +441,8 @@ class TestFbpWindow(QWidget):
     def _read_vdclink_3(self):
         try:
             self._drs.SetSlaveAdd(3)
-            v = self._drs.read_bsmp_variable(self._bsmp_var['vdclink'], 'float')
-            self.le_vdclink_3.setText(str(v))
+            v = self._drs.read_bsmp_variable(self._bsmp_var['vdclink'], 'float', 0)
+            self.le_vdclink_3.setText(str(round(v, 4)))
         except:
             pass
 
@@ -449,8 +450,8 @@ class TestFbpWindow(QWidget):
     def _read_vdclink_4(self):
         try:
             self._drs.SetSlaveAdd(4)
-            v = self._drs.read_bsmp_variable(self._bsmp_var['vdclink'], 'float')
-            self.le_vdclink_4.setText(str(v))
+            v = self._drs.read_bsmp_variable(self._bsmp_var['vdclink'], 'float', 0)
+            self.le_vdclink_4.setText(str(round(v, 4)))
         except:
             pass
 
@@ -458,8 +459,8 @@ class TestFbpWindow(QWidget):
     def _read_temp_1(self):
         try:
             self._drs.SetSlaveAdd(1)
-            t = self._drs.read_bsmp_variable(self._bsmp_var['temp'], 'float')
-            self.le_vdclink_1.setText(str(t))
+            t = self._drs.read_bsmp_variable(self._bsmp_var['temp'], 'float', 0)
+            self.le_temp_1.setText(str(round(t, 4)))
         except:
             pass
 
@@ -467,8 +468,8 @@ class TestFbpWindow(QWidget):
     def _read_temp_2(self):
         try:
             self._drs.SetSlaveAdd(2)
-            t = self._drs.read_bsmp_variable(self._bsmp_var['temp'], 'float')
-            self.le_vdclink_2.setText(str(t))
+            t = self._drs.read_bsmp_variable(self._bsmp_var['temp'], 'float', 0)
+            self.le_temp_2.setText(str(round(t, 4)))
         except:
             pass
 
@@ -476,8 +477,8 @@ class TestFbpWindow(QWidget):
     def _read_temp_3(self):
         try:
             self._drs.SetSlaveAdd(3)
-            t = self._drs.read_bsmp_variable(self._bsmp_var['temp'], 'float')
-            self.le_vdclink_3.setText(str(t))
+            t = self._drs.read_bsmp_variable(self._bsmp_var['temp'], 'float', 0)
+            self.le_temp_3.setText(str(round(t, 4)))
         except:
             pass
 
@@ -485,8 +486,8 @@ class TestFbpWindow(QWidget):
     def _read_temp_4(self):
         try:
             self._drs.SetSlaveAdd(4)
-            t = self._drs.read_bsmp_variable(self._bsmp_var['temp'], 'float')
-            self.le_vdclink_4.setText(str(t))
+            t = self._drs.read_bsmp_variable(self._bsmp_var['temp'], 'float', 0)
+            self.le_temp_4.setText(str(round(t, 4)))
         except:
             pass
 
