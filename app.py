@@ -51,8 +51,10 @@ class TestFbpWindow(QWidget):
         self.le_temp_3.setReadOnly(True)
         self.le_temp_4.setReadOnly(True)
         self.le_intlk.setReadOnly(True)
+        #self.combo_iref_id.addItems(['Fonte 1', 'Fonte 2', 'Fonte 3',
+        #                            'Fonte 4', 'Todas'])
         self.combo_iref_id.addItems(['Fonte 1', 'Fonte 2', 'Fonte 3',
-                                    'Fonte 4', 'Todas'])
+                                    'Fonte 4'])
         self.combo_intlk_id.addItems(['Fonte 1', 'Fonte 2', 'Fonte 3',
                                     'Fonte 4'])
 
