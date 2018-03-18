@@ -19,8 +19,9 @@ class TestFbpWindow(QWidget):
 
         self._current_ps_id = {'Fonte 1': 1, 'Fonte 2': 2, 'Fonte 3': 3,
                                 'Fonte 4': 4, 'Todas': 5}
-        self._bsmp_var = {'soft_intlk': 25, 'hard_intlk': 26, 'iload': 27,
-                            'vload': 28, 'vdclink': 29, 'temp': 30}
+        self._bsmp_var =      {'soft_intlk': 25, 'hard_intlk': 26, 'iload': 27,
+                                'vload': 28, 'vdclink': 29, 'temp': 30,
+                                'digital_pot': 35}
 
         self._drs = SerialDRS()
 
@@ -57,6 +58,7 @@ class TestFbpWindow(QWidget):
                                     'Fonte 4'])
         self.combo_intlk_id.addItems(['Fonte 1', 'Fonte 2', 'Fonte 3',
                                     'Fonte 4'])
+        self.le_digital_pot_write.setText(str(self.sl_digital_pot.value()))
 
     def _initialize_signals(self):
         self.pb_connect.clicked.connect(self._connect_serial)
@@ -96,6 +98,8 @@ class TestFbpWindow(QWidget):
         self.pb_temp_2.clicked.connect(self._read_temp_2)
         self.pb_temp_3.clicked.connect(self._read_temp_3)
         self.pb_temp_4.clicked.connect(self._read_temp_4)
+        self.pb_digital_pot_read.clicked.connect(self._read_digital_pot)
+        self.sl_digital_pot.valueChanged.connect(self._update_digital_pot)
 
     def _list_serial_ports(self):
         if sys.platform.startswith('win'):
@@ -492,6 +496,22 @@ class TestFbpWindow(QWidget):
             self.le_temp_4.setText(str(round(t, 4)))
         except:
             pass
+
+    @pyqtSlot()
+    def _update_digital_pot(self):
+        pot_val = self.sl_digital_pot.value()
+        self.le_digital_pot_write.setText(str(pot_val))
+
+        write_voltage = (6.0 / 100) * pot_val
+
+        self._drs.write_digital_pot_voltage(write_voltage)
+        read_voltage = self._drs.read_bsmp_variable(self._bsmp_var['digital_pot'], 'float', 0)
+        self.le_digital_pot_read.setText(str(read_voltage))
+
+    @pyqtSlot()
+    def _read_digital_pot(self):
+        read_voltage = self._drs.read_bsmp_variable(self._bsmp_var['digital_pot'], 'float', 0)
+        self.le_digital_pot_read.setText(str(read_voltage))
 
 app = QApplication(sys.argv)
 widget = TestFbpWindow()
